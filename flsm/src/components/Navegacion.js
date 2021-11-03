@@ -6,7 +6,7 @@ export default function Navegacion() {
     return (
 <Navbar collapseOnSelect expand="lg" className="color-nav" variant="light">
   <Container>
-  <Navbar.Brand as={Link} to="/">LSM ABBY</Navbar.Brand>
+  <Navbar.Brand as={Link} to="/"> LSM ABBY</Navbar.Brand>
   <Navbar.Toggle aria-controls="responsive-navbar-nav" />
   <Navbar.Collapse id="responsive-navbar-nav">
     <Nav className="me-auto">
