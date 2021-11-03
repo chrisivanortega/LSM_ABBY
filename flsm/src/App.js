@@ -1,15 +1,14 @@
-import logo from './logo.svg';
+
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { Container,Row,Col } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import Navegacion from './components/Navegacion';
 import React from "react";
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
 } from "react-router-dom";
 import Cursos from './components/Cursos';
 import Informacion from './components/Informacion';
