@@ -1,0 +1,195 @@
+{% load static %}
+<!-- CSS -->
+
+    <!-- -->
+    
+
+    
+  
+     
+   
+     
+     
+     
+     <!-- Script -->
+     <script type="text/javascript" src="{% static 'webcam.min.js' %}"></script>
+     <script src="{% static 'jquery.min.js' %}"></script>
+     <link href="{% static 'bootstrap.min.css' %}" rel="stylesheet" >
+
+     <script src="{% static 'bootstrap.min.js' %}"></script>
+
+
+
+     <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+          <a class="navbar-brand" >Capturador de señas</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+              <li class="nav-item">
+                <a class="nav-link"  >Camara</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" >Señas</a>
+              </li>
+
+            </ul>
+            <form class="d-flex">
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+      
+      <main class="container">
+        <div class="row">
+            <div class="col-md-8  "  >
+                <div id="my_camera">Cargando camara...</div>
+            </div>
+            <div class="col-md-4 justify-content-left ">
+                
+                    <div class="form-group">
+                      <label for="sennainput">Nombre de la seña</label>
+                      <input type="text" class="form-control" id="sennainput" aria-describedby="sennahelp" placeholder="escribe la seña">
+                      
+
+                  
+                    </div>
+                    <div class="form-group">
+                    <label for="descinput">Descripcion de la seña</label>
+                    <input type="text" class="form-control" id="descinput" aria-describedby="descinput" placeholder="escribe la Descripcion seña">
+                    
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary" onclick="take_snapshot()">Vista Previa</button>
+
+                    
+                  
+            </div>
+            <div class="col-md-12 d-flex justify-content-center">
+                <div class="card" id="vista_previa"  style="display: none; width: 200px;" >
+                    <img   id="previa" width="100px" height="140" class="card-img-top" alt="...">
+                    <div class="card-body">
+                      <h5 class="card-title" id="senna_nombre"></h5>
+                      <p class="card-text" id="desc_senna"></p>
+                      <a href="#" class="btn btn-sm btn-danger" onclick="saveSnap()">Crear</a>
+                    </div>
+                  </div>
+            </div>
+            <div class="col-md-12"><br></div>
+            <div class="col-md-12">
+              <table class="table hover table-sm" id="sennas_existentes">
+                <thead>
+                  <th>
+                    Nombre
+                  </th>
+                  <th>
+                    Descripcion
+                  </th>  
+                  <th>
+                    Imagen
+                  </th>                                     
+                </thead>
+                <tbody>
+
+                </tbody>
+              </table>
+            </div>
+        </div>
+      </main>
+
+
+<!-- Modal -->
+<div class="modal fade " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Seña</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        
+
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Borrar</button>
+        <button type="button" class="btn btn-primary">Grabar Cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+     <!-- Code to handle taking the snapshot and displaying it locally -->
+     <script language="JavaScript">
+     configure()
+     carga_sennas()
+     // Configure a few settings and attach camera
+     function configure(){
+      Webcam.set({
+        width: 800,
+			height: 720,
+			image_format: 'jpeg',
+			jpeg_quality: 90,
+			constraints: {}
+      });
+      Webcam.attach( '#my_camera' );
+     }
+     // A button for taking snaps
+     // preload shutter audio clip
+     var shutter = new Audio();
+     shutter.autoplay = false;
+     //shutter.src = navigator.userAgent.match(/Firefox/) ? 'shutter.ogg' : 'shutter.mp3';
+     function take_snapshot() {
+         
+        // play sound effect
+        //shutter.play();
+        // take snapshot and get image data
+        Webcam.snap( function(data_uri) {
+        // display results in page
+        $("#previa").attr("src",data_uri)
+        $("#vista_previa").show()
+        $("#senna_nombre").html( $("#sennainput").val())
+        $("#desc_senna").html( $("#descinput").val())
+        
+        } );
+        //Webcam.reset();
+     }
+    function saveSnap(){
+     var base64image = $("#previa").attr("src")
+     // Get base64 value from <img id='imageprev'> source
+     
+     
+     $.ajax({url:'graba',method:'POST',data:base64image,success:function(data){
+        
+      carga_sennas()
+     }})
+     return 
+     
+     
+     Webcam.upload( base64image, 'graba', function(code, text) {
+      console.log('Save successfully');
+      //console.log(text);
+     });
+
+
+
+    }
+
+    function carga_sennas(){
+      $.ajax({url:"/api/sennas",success:function(data){
+        $('#sennas_existentes').empty()
+        data.map((senas=>{
+          $('#sennas_existentes').append('<tr data-bs-toggle="modal" data-bs-target="#exampleModal" ><td>'+senas.name+'</td><td>'+senas.desc+'</td><td><img width="25px" src="'+senas.img+'"></td></tr>');
+  
+  
+        }))
+      }})
+    }
+
+
+    </script>
+
+
